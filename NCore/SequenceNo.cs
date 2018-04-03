@@ -34,7 +34,9 @@ namespace NCore
         public string ClaimAsString(string format = "", bool commit = true)
         {
             string ret = "";
-            SequenceNo sn = DataHelper.Populate<SequenceNo>("SequenceNos", Query.EQ("_id", _id)).FirstOrDefault();
+            var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", _id);
+
+            SequenceNo sn = DataHelper.Populate<SequenceNo>("SequenceNos",q).FirstOrDefault();
             if (sn != null)
             {
                 NextNo = sn.NextNo;
@@ -53,7 +55,8 @@ namespace NCore
         public int ClaimAsInt(bool commit = true)
         {
             int ret = 0;
-            SequenceNo sn = DataHelper.Populate<SequenceNo>("SequenceNos", Query.EQ("_id", _id)).FirstOrDefault();
+            var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", _id);
+            SequenceNo sn = DataHelper.Populate<SequenceNo>("SequenceNos", q).FirstOrDefault();
             if (sn != null)
             {
                 NextNo = sn.NextNo;
@@ -69,7 +72,8 @@ namespace NCore
 
         public static SequenceNo Get(string id)
         {
-            SequenceNo ret = DataHelper.Populate<SequenceNo>("SequenceNos", Query.EQ("_id", id)).FirstOrDefault();
+            var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", id);
+            SequenceNo ret = DataHelper.Populate<SequenceNo>("SequenceNos", q).FirstOrDefault();
             if (ret == null)
             {
                 ret = new SequenceNo
