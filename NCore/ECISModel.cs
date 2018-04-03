@@ -93,18 +93,18 @@ namespace NCore
             if (ret != null) ret.PostGet();
             return ret;
         }
-        public T Update<T>(BsonDocument updates, string tableName = "") where T : IECISModel, new()
-        {
-            if (tableName.Equals("")) tableName = TableName;
-            //var update = new UpdateDefinitionBuilder<T>();
-            //foreach (var k in updates.Elements)
-            //{
-            //    update =  update.AddToSet<T>(, k.Value);
-            //}
-            DataHelper.Update(tableName, prepareEqId(), updates);
-            T ret = ECISModel.Get<T>(_id);
-            return ret;
-        }
+        //public T Update<T>(BsonDocument updates, string tableName = "") where T : IECISModel, new()
+        //{
+        //    if (tableName.Equals("")) tableName = TableName;
+        //    //var update = new UpdateDefinitionBuilder<T>();
+        //    //foreach (var k in updates.Elements)
+        //    //{
+        //    //    update =  update.AddToSet<T>(, k.Value);
+        //    //}
+        //    DataHelper.Update(tableName, prepareEqId(), updates);
+        //    T ret = ECISModel.Get<T>(_id);
+        //    return ret;
+        //}
         public static T Get<T>(
            FilterDefinition<BsonDocument> q = null,
            SortDefinition<BsonDocument> sort = null

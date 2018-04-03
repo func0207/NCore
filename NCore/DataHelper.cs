@@ -30,7 +30,9 @@ namespace NCore
     {
         static DataHelper()
         {
-            if (License.Validate("Global") == false) throw new Exception("ERR_INVALID_LICENSE");
+            #region License -- still not working -- NetCore still not working with 256 Rijendael Decrpyt -- temp remark
+            //if (License.Validate("Global") == false) throw new Exception("ERR_INVALID_LICENSE");
+            #endregion
         }
         internal static IMongoDatabase _db;
 
@@ -401,7 +403,13 @@ namespace NCore
             var cols = GetDb().GetCollection<BsonDocument>(collectionName);
             foreach (BsonDocument data in datas)
             {
-                cols.Save(data["_id"].ToString());
+                //cols.InsertOne(data);
+                var result =  cols.ReplaceOne(
+                    filter: new BsonDocument("_id", data["_id"]),
+                    options: new UpdateOptions { IsUpsert = true },
+                    replacement: data);
+
+                //cols.Save(data["_id"].ToString());
                 if (pushToMemory == true)
                 {
                     BsonDocument old = memoryObjects.FirstOrDefault(d => d["_id"] == data["_id"]);
@@ -421,14 +429,7 @@ namespace NCore
             Save(collectionName, docs, pushToMemory, memoryId, overwriteMemory);
         }
 
-        public static void Update(string collectionName,
-            FilterDefinition<BsonDocument> where = null,
-            UpdateDefinition<BsonDocument> update = null,
-            UpdateOptions flag = null
-           )
-        {
-            GetDb().GetCollection<BsonDocument>(collectionName).UpdateMany(where, update, flag);
-        }
+      
 
 
 
@@ -693,6 +694,17 @@ namespace NCore
         //{
         //    var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", id);
         //    Delete(collectionName, q);
+        //}
+        #endregion
+
+        #region update -- remark because Save function already handle Insert and Update
+        //public static void Update(string collectionName,
+        //    FilterDefinition<BsonDocument> where = null,
+        //    UpdateDefinition<BsonDocument> update = null,
+        //    UpdateOptions flag = null
+        //   )
+        //{
+        //    GetDb().GetCollection<BsonDocument>(collectionName).Update(where, update, flag);
         //}
         #endregion
     }
