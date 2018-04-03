@@ -8,6 +8,7 @@ using System.Reflection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
+using MongoDB.Driver;
 
 namespace NCore
 {
@@ -62,10 +63,10 @@ namespace NCore
             string localTableName = ot.TableName;
             return DataHelper.Populate<T>(localTableName);
         }
-        public static List<T> Populate<T>(MongoDB.Driver.IMongoQuery q,
-            int take = 0, int skip = 0,
-            SortByBuilder sort = null,
-            string[] fields = null)
+        public static List<T> Populate<T>(
+           FilterDefinition<BsonDocument> q = null, int take = 0, int skip = 0,
+           string[] fields = null,
+           SortDefinition<BsonDocument> sort = null)
             where T : IECISModel, new()
         {
             //TypeInfo ti = typeof(T).GetTypeInfo();
@@ -95,16 +96,19 @@ namespace NCore
         public T Update<T>(BsonDocument updates, string tableName = "") where T : IECISModel, new()
         {
             if (tableName.Equals("")) tableName = TableName;
-            var update = new MongoDB.Driver.Builders.UpdateBuilder();
-            foreach (var k in updates.Elements)
-            {
-                update = update.AddToSet(k.Name, k.Value);
-            }
-            DataHelper.Update(tableName, prepareEqId(), update);
+            //var update = new UpdateDefinitionBuilder<T>();
+            //foreach (var k in updates.Elements)
+            //{
+            //    update =  update.AddToSet<T>(, k.Value);
+            //}
+            DataHelper.Update(tableName, prepareEqId(), updates);
             T ret = ECISModel.Get<T>(_id);
             return ret;
         }
-        public static T Get<T>(MongoDB.Driver.IMongoQuery q, SortByBuilder sort = null)
+        public static T Get<T>(
+           FilterDefinition<BsonDocument> q = null,
+           SortDefinition<BsonDocument> sort = null
+            )
             where T : IECISModel, new()
         {
             T ret = new T();
@@ -171,15 +175,21 @@ namespace NCore
             if (runPostSave) doc = PostSave(doc, references);
         }
 
-        private MongoDB.Driver.IMongoQuery prepareEqId()
+        private FilterDefinition<BsonDocument> prepareEqId()
         {
-            MongoDB.Driver.IMongoQuery q = Query.Null;
+            FilterDefinition<BsonDocument> q = null;
             if (_id.GetType() == typeof(DateTime))
-                Query.EQ("_id", (DateTime)this._id);
+            {
+                return new FilterDefinitionBuilder<BsonDocument>().Eq("_id", (DateTime)this._id);
+            }
             else if (_id.GetType() == typeof(int))
-                Query.EQ("_id", (int)this._id);
+            {
+                return new FilterDefinitionBuilder<BsonDocument>().Eq("_id", (int)this._id);
+            }
             else
-                Query.EQ("_id", this._id.ToString());
+            {
+                return new FilterDefinitionBuilder<BsonDocument>().Eq("_id", this._id.ToString());
+            }
             return q;
         }
 
@@ -188,11 +198,21 @@ namespace NCore
             if (_id == null) return;
             PreDelete();
             if (_id.GetType() == typeof(DateTime))
-                DataHelper.Delete(TableName, (DateTime)this._id);
+            {
+                var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", (DateTime)this._id);
+                DataHelper.Delete(TableName, q);
+            }
             else if (_id.GetType() == typeof(int))
-                DataHelper.Delete(TableName, (int)this._id);
+            {
+                var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", (int)this._id);
+                DataHelper.Delete(TableName, q);
+            }
             else
-                DataHelper.Delete(TableName, this._id.ToString());
+            {
+                var q = new FilterDefinitionBuilder<BsonDocument>().Eq("_id", this._id.ToString());
+                DataHelper.Delete(TableName, q);
+
+            }
             PostDelete();
         }
 

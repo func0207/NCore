@@ -421,10 +421,14 @@ namespace NCore
             Save(collectionName, docs, pushToMemory, memoryId, overwriteMemory);
         }
 
-        //public static void Update(string collectionName, IMongoQuery where, IMongoUpdate update, UpdateFlags flag = UpdateFlags.None)
-        //{
-        //    GetDb().GetCollection(collectionName).Update(where, update, flag);
-        //}
+        public static void Update(string collectionName,
+            FilterDefinition<BsonDocument> where = null,
+            UpdateDefinition<BsonDocument> update = null,
+            UpdateOptions flag = null
+           )
+        {
+            GetDb().GetCollection<BsonDocument>(collectionName).UpdateMany(where, update, flag);
+        }
 
 
 
@@ -665,13 +669,13 @@ namespace NCore
         #endregion
 
         #region Delete
-        //public static void Delete(string collectionName, FilterDefinition<BsonDocument> q = null)
-        //{
-        //    if (q == null)
-        //        GetDb().GetCollection<BsonDocument>(collectionName).DeleteMany();
-        //    else
-        //        GetDb().GetCollection<BsonDocument>(collectionName).DeleteMany<BsonDocument>(x => BsonHelper.GetString("_id", id));
-        //}
+        public static void Delete(string collectionName, FilterDefinition<BsonDocument> q = null)
+        {
+            if (q == null)
+                GetDb().GetCollection<BsonDocument>(collectionName).DeleteMany("{}");
+            else
+                GetDb().GetCollection<BsonDocument>(collectionName).DeleteMany(q);
+        }
 
         //public static void Delete(string collectionName, string id)
         //{
